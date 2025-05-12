@@ -1,93 +1,83 @@
 // نمایش بخش‌های مختلف سایت
 function showSection(section) {
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach(function (sec) {
-      sec.style.display = 'none';
+  const sections = document.querySelectorAll('.content-section');
+  sections.forEach(sec => sec.style.display = 'none');
+  document.getElementById(section).style.display = 'block';
+}
+
+// ثبت‌نام با Firebase
+function signUp() {
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      document.getElementById('message').innerText = 'ثبت‌نام موفق بود!';
+    })
+    .catch(error => {
+      document.getElementById('message').innerText = error.message;
     });
-  
-    document.getElementById(section).style.display = 'block';
-  }
-  
-  // ثبت‌نام
-  function register() {
-    const username = document.getElementById('reg-username').value;
-    const password = document.getElementById('reg-password').value;
-    const phone = document.getElementById('reg-phone').value;
-    const email = document.getElementById('reg-email').value;
-  
-    // ذخیره اطلاعات در localStorage
-    localStorage.setItem('username', username);
-    localStorage.setItem('password', password);
-    localStorage.setItem('phone', phone);
-    localStorage.setItem('email', email);
-  
-    alert('ثبت‌نام با موفقیت انجام شد!');
-    showLogin();
-  }
-  
-  // ورود
-  function login() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const savedUsername = localStorage.getItem('username');
-    const savedPassword = localStorage.getItem('password');
-  
-    if (username === savedUsername && password === savedPassword) {
+}
+
+// ورود با Firebase
+function login() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      document.getElementById('message').innerText = 'ورود موفق!';
       document.getElementById('login-form').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('user-name').innerText = username;
-      showSection('photo'); // پیش‌فرض: نمایش عکس
-    } else {
-      alert('نام کاربری یا رمز عبور اشتباه است.');
-    }
+      document.getElementById('user-name').innerText = email;
+      showSection('music'); // یا photo/video به دلخواه
+    })
+    .catch(error => {
+      document.getElementById('message').innerText = error.message;
+    });
+}
+
+// تغییر فرم‌ها (در صورت نیاز)
+function showRegister() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'block';
+}
+
+function showLogin() {
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+// بارگذاری تصویر
+function loadImage(event) {
+  const image = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('profile-pic').src = e.target.result;
+  };
+  reader.readAsDataURL(image);
+}
+
+// بارگذاری موزیک
+function loadMusic(event) {
+  const file = event.target.files[0];
+  const player = document.getElementById('music-player');
+  if (file) {
+    const url = URL.createObjectURL(file);
+    player.src = url;
+    player.style.display = 'block';
+    player.play();
   }
-  
-  // تغییر به فرم ثبت‌نام
-  function showRegister() {
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('register-form').style.display = 'block';
+}
+
+// بارگذاری ویدیو
+function loadVideo(event) {
+  const file = event.target.files[0];
+  const player = document.getElementById('video-player');
+  if (file) {
+    const url = URL.createObjectURL(file);
+    player.src = url;
+    player.style.display = 'block';
+    player.play();
   }
-  
-  // تغییر به فرم ورود
-  function showLogin() {
-    document.getElementById('register-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-  }
-  
-  // بارگذاری تصویر
-  function loadImage(event) {
-    const image = event.target.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function (e) {
-      document.getElementById('profile-pic').src = e.target.result;
-    };
-    
-    reader.readAsDataURL(image);
-  }
-  
-  // بارگذاری آهنگ
-  function loadMusic(event) {
-    const file = event.target.files[0];
-    const player = document.getElementById('music-player');
-    
-    if (file) {
-      const url = URL.createObjectURL(file);
-      player.src = url;
-      player.style.display = 'block';
-      player.play();
-    }
-  }
-  
-  // بارگذاری ویدیو
-  function loadVideo(event) {
-    const file = event.target.files[0];
-    const player = document.getElementById('video-player');
-    
-    if (file) {
-      const url = URL.createObjectURL(file);
-      player.src = url;
-      player.style.display = 'block';
-      player.play();
-    }
-  }
+}
